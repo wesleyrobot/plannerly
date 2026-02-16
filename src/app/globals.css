@@ -1,0 +1,196 @@
+@import url('https://fonts.googleapis.com/css2?family=Caveat:wght@400;500;600;700&family=Patrick+Hand&display=swap');
+@import "tailwindcss";
+
+:root {
+  --background: #1e1e2e;
+  --foreground: #e0e0e0;
+  --chalk-bg: #2a2a3a;
+  --chalk-border: #3a3a4a;
+  --chalk-white: #e8e8e8;
+  --chalk-gray: #888;
+  --chalk-accent: #a0a0b0;
+  --chalk-highlight: #f0c040;
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --font-sans: var(--font-geist-sans);
+  --font-hand: 'Caveat', 'Patrick Hand', cursive;
+}
+
+body {
+  background: var(--background);
+  color: var(--foreground);
+  font-family: var(--font-sans), Arial, Helvetica, sans-serif;
+}
+
+/* Chalk text effect */
+.chalk-text {
+  font-family: 'Caveat', 'Patrick Hand', cursive;
+}
+
+.chalk-title {
+  font-family: 'Caveat', 'Patrick Hand', cursive;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+}
+
+/* Chalkboard texture overlay */
+.chalkboard {
+  background-color: #1e1e2e;
+  background-image:
+    radial-gradient(ellipse at 10% 20%, rgba(60, 60, 80, 0.3) 0%, transparent 50%),
+    radial-gradient(ellipse at 90% 80%, rgba(50, 50, 70, 0.2) 0%, transparent 50%);
+  position: relative;
+}
+
+.chalkboard::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.03'/%3E%3C/svg%3E");
+  pointer-events: none;
+  z-index: 0;
+}
+
+/* Calendar grid styles */
+.calendar-grid {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+}
+
+.calendar-cell {
+  border: 1px solid var(--chalk-border);
+  min-height: 100px;
+  padding: 6px 8px;
+  position: relative;
+  transition: background-color 0.15s;
+}
+
+.calendar-cell:hover {
+  background-color: rgba(255, 255, 255, 0.03);
+}
+
+.calendar-cell.today {
+  background-color: rgba(240, 192, 64, 0.08);
+}
+
+.calendar-header-cell {
+  border: 1px solid var(--chalk-border);
+  padding: 10px 8px;
+  text-align: center;
+  font-family: 'Caveat', cursive;
+  font-size: 1rem;
+  font-weight: 600;
+  color: var(--chalk-accent);
+  text-transform: uppercase;
+  letter-spacing: 2px;
+}
+
+/* Smooth scrollbar - dark theme */
+::-webkit-scrollbar {
+  width: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #3a3a4a;
+  border-radius: 3px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #4a4a5a;
+}
+
+/* Sticky note effect */
+.sticky-note {
+  position: relative;
+  transform: rotate(-1deg);
+  transition: transform 0.2s;
+}
+
+.sticky-note:hover {
+  transform: rotate(0deg) scale(1.02);
+}
+
+/* Event tag on calendar */
+.event-tag {
+  font-family: 'Caveat', cursive;
+  font-size: 0.85rem;
+  padding: 1px 6px;
+  border-radius: 3px;
+  margin-bottom: 2px;
+  cursor: pointer;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  transition: opacity 0.15s;
+}
+
+.event-tag:hover {
+  opacity: 0.8;
+}
+
+/* Task checkbox */
+.task-check {
+  width: 16px;
+  height: 16px;
+  border: 2px solid var(--chalk-accent);
+  border-radius: 3px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  flex-shrink: 0;
+  transition: all 0.15s;
+}
+
+.task-check.checked {
+  background: var(--chalk-accent);
+  border-color: var(--chalk-accent);
+}
+
+.task-check:hover {
+  border-color: var(--chalk-white);
+}
+
+/* Current time indicator */
+.current-time-line {
+  position: absolute;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background: #ef4444;
+  z-index: 20;
+  pointer-events: none;
+}
+
+.current-time-line::before {
+  content: '';
+  position: absolute;
+  left: -4px;
+  top: -3px;
+  width: 8px;
+  height: 8px;
+  background: #ef4444;
+  border-radius: 50%;
+}
+
+/* Pipeline */
+.pipeline-card {
+  background: var(--background);
+  border: 1px solid var(--chalk-border);
+  border-radius: 10px;
+  padding: 12px;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+
+.pipeline-card:hover {
+  border-color: #555;
+  transform: translateY(-1px);
+}
