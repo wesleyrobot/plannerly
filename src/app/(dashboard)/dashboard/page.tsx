@@ -3,6 +3,7 @@
 import { useState } from "react";
 import ChalkboardCalendar from "@/components/calendar/ChalkboardCalendar";
 import RightPanel from "@/components/layout/RightPanel";
+import MetricsBar from "@/components/dashboard/MetricsBar";
 import { useRouter } from "next/navigation";
 
 export default function DashboardPage() {
@@ -13,6 +14,7 @@ export default function DashboardPage() {
     <div className="flex h-screen">
       <div className="flex-1 chalkboard overflow-y-auto p-6">
         <div className="relative z-10">
+          <MetricsBar />
           <ChalkboardCalendar
             currentDate={currentDate}
             onDateChange={setCurrentDate}

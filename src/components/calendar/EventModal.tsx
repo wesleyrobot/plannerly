@@ -4,6 +4,7 @@ import { useState, useEffect } from "react";
 import { X, Trash2, Loader2, CalendarDays, Users, Clock } from "lucide-react";
 import { Event, EventInsert, Client } from "@/types/database";
 import { createClient } from "@/lib/supabase";
+import ConfirmDialog from "@/components/ui/ConfirmDialog";
 
 interface EventModalProps {
   isOpen: boolean;
@@ -38,7 +39,10 @@ export default function EventModal({
   const [eventType, setEventType] = useState<"event" | "meeting" | "deadline">("event");
   const [clientId, setClientId] = useState<string>("");
   const [clients, setClients] = useState<Client[]>([]);
+  const [recurrence, setRecurrence] = useState<"" | "daily" | "weekly" | "monthly">("");
+  const [recurrenceEnd, setRecurrenceEnd] = useState("");
   const [loading, setLoading] = useState(false);
+  const [confirmDelete, setConfirmDelete] = useState(false);
 
   const supabase = createClient();
 
@@ -66,6 +70,8 @@ export default function EventModal({
       setAllDay(event.all_day);
       setEventType(event.event_type || "event");
       setClientId(event.client_id || "");
+      setRecurrence((event.recurrence as "" | "daily" | "weekly" | "monthly") || "");
+      setRecurrenceEnd(event.recurrence_end || "");
     } else if (selectedDate) {
       setTitle("");
       setDescription("");
@@ -84,6 +90,8 @@ export default function EventModal({
       setAllDay(false);
       setEventType("event");
       setClientId("");
+      setRecurrence("");
+      setRecurrenceEnd("");
     }
   }, [event, selectedDate]);
 
@@ -104,6 +112,8 @@ export default function EventModal({
         all_day: allDay,
         event_type: eventType,
         client_id: clientId || null,
+        recurrence: recurrence || null,
+        recurrence_end: recurrenceEnd || null,
       });
       onClose();
     } finally {
@@ -123,6 +133,7 @@ export default function EventModal({
   };
 
   return (
+    <>
     <div className="fixed inset-0 z-50 flex items-center justify-center">
       <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" onClick={onClose} />
       <div className="relative bg-[#2a2a3a] border border-[#3a3a4a] rounded-2xl shadow-2xl w-full max-w-lg p-6 m-4 max-h-[90vh] overflow-y-auto">
@@ -234,6 +245,33 @@ export default function EventModal({
             </div>
           </div>
 
+          {/* Recurrence */}
+          <div>
+            <label className="block text-sm text-[#888] mb-1">Repetir</label>
+            <select
+              value={recurrence}
+              onChange={(e) => setRecurrence(e.target.value as "" | "daily" | "weekly" | "monthly")}
+              className="w-full px-4 py-2.5 bg-[#1e1e2e] border border-[#3a3a4a] rounded-xl focus:ring-2 focus:ring-[#f0c040]/50 outline-none text-[#e8e8e8] chalk-text"
+            >
+              <option value="">Não repetir</option>
+              <option value="daily">Diariamente</option>
+              <option value="weekly">Semanalmente</option>
+              <option value="monthly">Mensalmente</option>
+            </select>
+          </div>
+
+          {recurrence && (
+            <div>
+              <label className="block text-sm text-[#888] mb-1">Repetir até</label>
+              <input
+                type="date"
+                value={recurrenceEnd}
+                onChange={(e) => setRecurrenceEnd(e.target.value)}
+                className="w-full px-4 py-2.5 bg-[#1e1e2e] border border-[#3a3a4a] rounded-xl focus:ring-2 focus:ring-[#f0c040]/50 outline-none text-[#e8e8e8]"
+              />
+            </div>
+          )}
+
           <div>
             <label className="block text-sm text-[#888] mb-2">Cor</label>
             <div className="flex gap-2">
@@ -255,7 +293,7 @@ export default function EventModal({
             {event && onDelete ? (
               <button
                 type="button"
-                onClick={handleDelete}
+                onClick={() => setConfirmDelete(true)}
                 disabled={loading}
                 className="flex items-center gap-2 px-4 py-2 text-red-400 hover:bg-red-400/10 rounded-xl transition-colors"
               >
@@ -286,5 +324,14 @@ export default function EventModal({
         </form>
       </div>
     </div>
+
+    <ConfirmDialog
+      isOpen={confirmDelete}
+      title="Excluir evento"
+      message={`Tem certeza que deseja excluir "${event?.title}"? Esta ação não pode ser desfeita.`}
+      onConfirm={handleDelete}
+      onCancel={() => setConfirmDelete(false)}
+    />
+    </>
   );
 }

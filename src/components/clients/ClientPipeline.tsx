@@ -6,7 +6,7 @@ import { useAuth } from "@/contexts/AuthContext";
 import { Stage, Client, ClientInsert } from "@/types/database";
 import ClientCard from "./ClientCard";
 import ClientModal from "./ClientModal";
-import { Plus, Pencil, Trash2, Check, X, DollarSign } from "lucide-react";
+import { Plus, Pencil, Trash2, Check, X, DollarSign, LayoutList, LayoutGrid } from "lucide-react";
 
 const DEFAULT_STAGES = [
   { name: "Contrato Assinado", color: "#6366f1", position: 0 },
@@ -42,6 +42,15 @@ export default function ClientPipeline() {
   const [editingStageId, setEditingStageId] = useState<string | null>(null);
   const [editingStageName, setEditingStageName] = useState("");
   const [editingStageColor, setEditingStageColor] = useState("");
+
+  const [compact, setCompact] = useState(false);
+
+  // Keyboard shortcut: C = new client
+  useEffect(() => {
+    const handler = () => { setSelectedClient(null); setDefaultStageId(""); setModalOpen(true); };
+    window.addEventListener("shortcut:new-client", handler);
+    return () => window.removeEventListener("shortcut:new-client", handler);
+  }, []);
 
   // New stage inline
   const [addingStage, setAddingStage] = useState(false);
@@ -236,6 +245,17 @@ export default function ClientPipeline() {
         </div>
         <div className="flex items-center gap-3">
           <button
+            onClick={() => setCompact((v) => !v)}
+            title={compact ? "Modo normal" : "Modo compacto"}
+            className={`w-9 h-9 rounded-xl flex items-center justify-center border transition-all ${
+              compact
+                ? "bg-[#f0c040]/10 border-[#f0c040]/30 text-[#f0c040]"
+                : "border-[#3a3a4a] text-[#666] hover:bg-white/5 hover:text-[#a0a0b0]"
+            }`}
+          >
+            {compact ? <LayoutGrid className="w-4 h-4" /> : <LayoutList className="w-4 h-4" />}
+          </button>
+          <button
             onClick={() => {
               setAddingStage(true);
               setTimeout(() => newStageInputRef.current?.focus(), 50);
@@ -359,15 +379,31 @@ export default function ClientPipeline() {
                     onDragEnd={handleDragEnd}
                     className="cursor-grab active:cursor-grabbing"
                   >
-                    <ClientCard
-                      client={client}
-                      isDragging={draggingClientId === client.id}
-                      onClick={() => {
-                        setSelectedClient(client);
-                        setDefaultStageId("");
-                        setModalOpen(true);
-                      }}
-                    />
+                    {compact ? (
+                      <div
+                        onClick={() => { setSelectedClient(client); setDefaultStageId(""); setModalOpen(true); }}
+                        className={`flex items-center justify-between px-3 py-2 rounded-lg border cursor-pointer hover:bg-white/5 transition-colors ${
+                          draggingClientId === client.id ? "opacity-50" : "border-[#3a3a4a]"
+                        }`}
+                      >
+                        <span className="chalk-text text-sm text-[#e8e8e8] truncate">{client.name}</span>
+                        {client.contract_value && client.contract_value > 0 && (
+                          <span className="chalk-text text-xs text-[#22c55e] font-semibold ml-2 whitespace-nowrap">
+                            {formatCurrency(client.contract_value)}
+                          </span>
+                        )}
+                      </div>
+                    ) : (
+                      <ClientCard
+                        client={client}
+                        isDragging={draggingClientId === client.id}
+                        onClick={() => {
+                          setSelectedClient(client);
+                          setDefaultStageId("");
+                          setModalOpen(true);
+                        }}
+                      />
+                    )}
                   </div>
                 ))}
 

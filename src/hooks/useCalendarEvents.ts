@@ -5,6 +5,7 @@ import { createClient } from "@/lib/supabase";
 import { useAuth } from "@/contexts/AuthContext";
 import { Event, EventInsert } from "@/types/database";
 import toast from "react-hot-toast";
+import { addDays, addWeeks, addMonths, parseISO, isAfter, isBefore } from "date-fns";
 
 interface UseCalendarEventsOptions {
   startDate: Date;
@@ -29,7 +30,36 @@ export function useCalendarEvents({ startDate, endDate }: UseCalendarEventsOptio
       .order("start_time", { ascending: true });
 
     if (error) { toast.error("Erro ao carregar eventos"); setLoading(false); return; }
-    setEvents(data || []);
+
+    // Expand recurring events within the date range
+    const rawEvents: Event[] = data || [];
+    const expanded: Event[] = [];
+    for (const ev of rawEvents) {
+      expanded.push(ev);
+      if (ev.recurrence) {
+        const duration = new Date(ev.end_time).getTime() - new Date(ev.start_time).getTime();
+        const recEnd = ev.recurrence_end ? parseISO(ev.recurrence_end) : endDate;
+        let cursor = parseISO(ev.start_time);
+        let safety = 0;
+        while (safety++ < 500) {
+          cursor = ev.recurrence === "daily"
+            ? addDays(cursor, 1)
+            : ev.recurrence === "weekly"
+            ? addWeeks(cursor, 1)
+            : addMonths(cursor, 1);
+          if (isAfter(cursor, recEnd) || isAfter(cursor, endDate)) break;
+          if (isBefore(cursor, startDate)) continue;
+          const newEnd = new Date(cursor.getTime() + duration);
+          expanded.push({
+            ...ev,
+            id: `${ev.id}_rec_${cursor.toISOString()}`,
+            start_time: cursor.toISOString(),
+            end_time: newEnd.toISOString(),
+          });
+        }
+      }
+    }
+    setEvents(expanded);
     setLoading(false);
   }, [user, startDate.toISOString(), endDate.toISOString()]);
 
@@ -46,6 +76,8 @@ export function useCalendarEvents({ startDate, endDate }: UseCalendarEventsOptio
 
   const saveEvent = async (eventData: EventInsert, existingId?: string) => {
     if (existingId) {
+      // Strip _rec_... suffix for recurring ghost events
+      const realId = existingId.includes("_rec_") ? existingId.split("_rec_")[0] : existingId;
       const { error } = await supabase
         .from("events")
         .update({
@@ -55,9 +87,13 @@ export function useCalendarEvents({ startDate, endDate }: UseCalendarEventsOptio
           end_time: eventData.end_time,
           color: eventData.color,
           all_day: eventData.all_day,
+          event_type: eventData.event_type,
+          client_id: eventData.client_id,
+          recurrence: eventData.recurrence,
+          recurrence_end: eventData.recurrence_end,
           updated_at: new Date().toISOString(),
         })
-        .eq("id", existingId);
+        .eq("id", realId);
       if (error) { toast.error("Erro ao atualizar evento"); return; }
       toast.success("Evento atualizado!");
     } else {
@@ -69,7 +105,8 @@ export function useCalendarEvents({ startDate, endDate }: UseCalendarEventsOptio
   };
 
   const deleteEvent = async (id: string) => {
-    const { error } = await supabase.from("events").delete().eq("id", id);
+    const realId = id.includes("_rec_") ? id.split("_rec_")[0] : id;
+    const { error } = await supabase.from("events").delete().eq("id", realId);
     if (error) { toast.error("Erro ao excluir evento"); return; }
     toast.success("Evento excluído!");
     fetchEvents();

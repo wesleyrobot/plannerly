@@ -64,6 +64,13 @@ export default function RobotAssistant() {
   const { user } = useAuth();
   const supabase = createClient();
 
+  // Request browser notification permission on mount
+  useEffect(() => {
+    if (typeof window !== "undefined" && "Notification" in window && Notification.permission === "default") {
+      Notification.requestPermission();
+    }
+  }, []);
+
   // Scroll to bottom of chat
   useEffect(() => {
     chatEndRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -126,10 +133,14 @@ export default function RobotAssistant() {
           const key = `${event.id}-${threshold}`;
           if (diffMin <= threshold && diffMin > (threshold === 5 ? 0 : threshold - 10) && !alertedRef.current.has(key)) {
             alertedRef.current.add(key);
-            toast(`${event.title} em ${diffMin} min (${format(eventTime, "HH:mm")})`, {
+            const msg = `${event.title} em ${diffMin} min (${format(eventTime, "HH:mm")})`;
+            toast(msg, {
               icon: "🤖", duration: 8000,
               style: { background: "#2a2a3a", color: "#f0c040", border: "1px solid #f0c040", fontFamily: "'Caveat', cursive", fontSize: "16px" },
             });
+            if (typeof window !== "undefined" && "Notification" in window && Notification.permission === "granted") {
+              new Notification("Plannerly — Lembrete", { body: msg, icon: "/favicon.ico" });
+            }
           }
         });
         if (diffMin <= 60) hasNearby = true;

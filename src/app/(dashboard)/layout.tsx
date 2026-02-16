@@ -2,6 +2,8 @@
 
 import Sidebar from "@/components/layout/Sidebar";
 import RobotAssistant from "@/components/assistant/RobotAssistant";
+import KeyboardShortcutsHelper from "@/components/layout/KeyboardShortcuts";
+import ErrorBoundary from "@/components/ui/ErrorBoundary";
 import { AuthProvider } from "@/contexts/AuthContext";
 import { Toaster } from "react-hot-toast";
 
@@ -24,8 +26,11 @@ export default function DashboardLayout({
       />
       <div className="flex min-h-screen bg-[#1e1e2e]">
         <Sidebar />
-        <main className="flex-1 ml-16">{children}</main>
+        <main className="flex-1 ml-0 md:ml-16 mb-16 md:mb-0">
+          <ErrorBoundary>{children}</ErrorBoundary>
+        </main>
         <RobotAssistant />
+        <KeyboardShortcutsHelper />
       </div>
     </AuthProvider>
   );

@@ -1,8 +1,9 @@
 "use client";
 
 import { Client } from "@/types/database";
-import { GripVertical, Mail, Phone, User, DollarSign } from "lucide-react";
+import { GripVertical, Mail, Phone, User, DollarSign, ExternalLink } from "lucide-react";
 import { format, parseISO } from "date-fns";
+import Link from "next/link";
 
 function formatCurrency(value: number): string {
   return new Intl.NumberFormat("pt-BR", { style: "currency", currency: "BRL" }).format(value);
@@ -57,6 +58,14 @@ export default function ClientCard({ client, onClick, isDragging }: ClientCardPr
               INÍCIO: {format(parseISO(client.start_date), "dd/MM/yyyy")}
             </div>
           )}
+          <Link
+            href={`/dashboard/clients/${client.id}`}
+            onClick={(e) => e.stopPropagation()}
+            className="inline-flex items-center gap-1 mt-2 text-[10px] text-[#f0c040]/60 hover:text-[#f0c040] transition-colors tracking-wider"
+          >
+            <ExternalLink className="w-3 h-3" />
+            VER DETALHES
+          </Link>
         </div>
       </div>
     </div>

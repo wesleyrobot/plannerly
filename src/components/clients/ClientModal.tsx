@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react";
 import { X, Trash2, Loader2 } from "lucide-react";
 import { Client, ClientInsert, Stage } from "@/types/database";
+import ConfirmDialog from "@/components/ui/ConfirmDialog";
 
 interface ClientModalProps {
   isOpen: boolean;
@@ -28,6 +29,7 @@ export default function ClientModal({
   const [expectedEndDate, setExpectedEndDate] = useState("");
   const [contractValue, setContractValue] = useState("");
   const [loading, setLoading] = useState(false);
+  const [confirmDelete, setConfirmDelete] = useState(false);
 
   useEffect(() => {
     if (client) {
@@ -90,6 +92,7 @@ export default function ClientModal({
   };
 
   return (
+    <>
     <div className="fixed inset-0 z-50 flex items-center justify-center">
       <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" onClick={onClose} />
       <div className="relative bg-[#2a2a3a] border border-[#3a3a4a] rounded-2xl shadow-2xl w-full max-w-lg p-6 m-4 max-h-[90vh] overflow-y-auto">
@@ -212,7 +215,7 @@ export default function ClientModal({
             {client && onDelete ? (
               <button
                 type="button"
-                onClick={handleDelete}
+                onClick={() => setConfirmDelete(true)}
                 disabled={loading}
                 className="flex items-center gap-2 px-4 py-2 text-red-400 hover:bg-red-400/10 rounded-xl transition-colors"
               >
@@ -243,5 +246,14 @@ export default function ClientModal({
         </form>
       </div>
     </div>
+
+    <ConfirmDialog
+      isOpen={confirmDelete}
+      title="Excluir cliente"
+      message={`Tem certeza que deseja excluir "${client?.name}"? Esta ação não pode ser desfeita.`}
+      onConfirm={handleDelete}
+      onCancel={() => setConfirmDelete(false)}
+    />
+    </>
   );
 }

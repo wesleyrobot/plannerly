@@ -19,6 +19,10 @@ export interface Database {
           end_time: string;
           color: string;
           all_day: boolean;
+          event_type: "event" | "meeting" | "deadline" | null;
+          client_id: string | null;
+          recurrence: "daily" | "weekly" | "monthly" | null;
+          recurrence_end: string | null;
           created_at: string;
           updated_at: string;
         };
@@ -31,6 +35,10 @@ export interface Database {
           end_time: string;
           color?: string;
           all_day?: boolean;
+          event_type?: "event" | "meeting" | "deadline" | null;
+          client_id?: string | null;
+          recurrence?: "daily" | "weekly" | "monthly" | null;
+          recurrence_end?: string | null;
           created_at?: string;
           updated_at?: string;
         };
@@ -43,6 +51,10 @@ export interface Database {
           end_time?: string;
           color?: string;
           all_day?: boolean;
+          event_type?: "event" | "meeting" | "deadline" | null;
+          client_id?: string | null;
+          recurrence?: "daily" | "weekly" | "monthly" | null;
+          recurrence_end?: string | null;
           created_at?: string;
           updated_at?: string;
         };

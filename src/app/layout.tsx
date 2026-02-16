@@ -11,6 +11,12 @@ export const metadata: Metadata = {
   title: "Plannerly - Organize seu mês",
   description: "Painel web de agenda mensal inteligente, simples e elegante. Organize seu mês. Visualize sua rotina.",
   keywords: ["agenda", "calendário", "tarefas", "planejamento", "organização"],
+  manifest: "/manifest.json",
+  appleWebApp: {
+    capable: true,
+    statusBarStyle: "black-translucent",
+    title: "Plannerly",
+  },
 };
 
 export default function RootLayout({
@@ -23,6 +29,9 @@ export default function RootLayout({
       <head>
         <meta name="darkreader-lock" />
         <meta name="color-scheme" content="dark" />
+        <meta name="theme-color" content="#f0c040" />
+        <meta name="mobile-web-app-capable" content="yes" />
+        <link rel="apple-touch-icon" href="/icon.svg" />
       </head>
       <body className={`${inter.variable} font-sans antialiased bg-[#1e1e2e] text-[#e0e0e0]`}>
         {children}

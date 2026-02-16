@@ -25,6 +25,13 @@ export default function TaskList() {
   const [loading, setLoading] = useState(false);
   const [filter, setFilter] = useState<"all" | "pending" | "completed">("all");
   const { user } = useAuth();
+
+  // Keyboard shortcut: T = new task
+  useEffect(() => {
+    const handler = () => setShowForm(true);
+    window.addEventListener("shortcut:new-task", handler);
+    return () => window.removeEventListener("shortcut:new-task", handler);
+  }, []);
   const supabase = createClient();
 
   const fetchTasks = useCallback(async () => {

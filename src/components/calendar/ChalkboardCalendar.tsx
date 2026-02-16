@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo } from "react";
+import { useMemo, useEffect } from "react";
 import { useCalendarEvents } from "@/hooks/useCalendarEvents";
 import { useAuth } from "@/contexts/AuthContext";
 import { EventInsert } from "@/types/database";
@@ -25,7 +25,16 @@ export default function ChalkboardCalendar({ currentDate, onDateChange, onSwitch
   const [modalOpen, setModalOpen] = useState(false);
   const [selectedEvent, setSelectedEvent] = useState<import("@/types/database").Event | null>(null);
   const [selectedDate, setSelectedDate] = useState("");
+  const [dragEventId, setDragEventId] = useState<string | null>(null);
+  const [dragOverDate, setDragOverDate] = useState<string | null>(null);
   const { user } = useAuth();
+
+  // Keyboard shortcut: N = new event
+  useEffect(() => {
+    const handler = () => { setSelectedEvent(null); setSelectedDate(""); setModalOpen(true); };
+    window.addEventListener("shortcut:new-event", handler);
+    return () => window.removeEventListener("shortcut:new-event", handler);
+  }, []);
 
   const monthStart = startOfMonth(currentDate);
   const monthEnd = endOfMonth(currentDate);
@@ -45,6 +54,29 @@ export default function ChalkboardCalendar({ currentDate, onDateChange, onSwitch
 
   const handleSave = async (eventData: EventInsert) => {
     await saveEvent(eventData, selectedEvent?.id);
+  };
+
+  const handleEventDrop = async (targetDateStr: string) => {
+    if (!dragEventId) return;
+    const ev = events.find((e) => e.id === dragEventId);
+    if (!ev) { setDragEventId(null); setDragOverDate(null); return; }
+
+    const origStart = parseISO(ev.start_time);
+    const origEnd = parseISO(ev.end_time);
+    const duration = origEnd.getTime() - origStart.getTime();
+
+    const [y, m, d] = targetDateStr.split("-").map(Number);
+    const newStart = new Date(y, m - 1, d, origStart.getHours(), origStart.getMinutes());
+    const newEnd = new Date(newStart.getTime() + duration);
+
+    await saveEvent({
+      ...ev,
+      start_time: newStart.toISOString(),
+      end_time: newEnd.toISOString(),
+    }, ev.id.includes("_rec_") ? ev.id.split("_rec_")[0] : ev.id);
+
+    setDragEventId(null);
+    setDragOverDate(null);
   };
 
   const handleDelete = async (id: string) => {
@@ -84,11 +116,19 @@ export default function ChalkboardCalendar({ currentDate, onDateChange, onSwitch
           const isCurrentDay = isToday(d);
           const dateStr = format(d, "yyyy-MM-dd");
 
+          const isDragTarget = dragOverDate === dateStr && dragEventId !== null;
+
           return (
             <div
               key={i}
-              className={`calendar-cell ${isCurrentDay ? "today" : ""}`}
-              onClick={() => { setSelectedEvent(null); setSelectedDate(dateStr); setModalOpen(true); }}
+              className={`calendar-cell ${isCurrentDay ? "today" : ""} ${isDragTarget ? "ring-2 ring-[#f0c040]/50 bg-[#f0c040]/5" : ""} transition-all`}
+              onClick={() => {
+                if (dragEventId) return;
+                setSelectedEvent(null); setSelectedDate(dateStr); setModalOpen(true);
+              }}
+              onDragOver={(e) => { e.preventDefault(); setDragOverDate(dateStr); }}
+              onDragLeave={() => setDragOverDate(null)}
+              onDrop={(e) => { e.preventDefault(); handleEventDrop(dateStr); }}
             >
               <div className="flex items-center justify-between">
                 <span
@@ -106,9 +146,16 @@ export default function ChalkboardCalendar({ currentDate, onDateChange, onSwitch
                 {dayEvents.slice(0, 3).map((evt) => (
                   <div
                     key={evt.id}
-                    className="event-tag text-[#e8e8e8]"
+                    draggable
+                    onDragStart={(e) => { e.stopPropagation(); setDragEventId(evt.id); }}
+                    onDragEnd={() => { setDragEventId(null); setDragOverDate(null); }}
+                    className={`event-tag text-[#e8e8e8] cursor-grab active:cursor-grabbing ${dragEventId === evt.id ? "opacity-40" : ""}`}
                     style={{ backgroundColor: evt.color + "40" }}
-                    onClick={(e) => { e.stopPropagation(); setSelectedEvent(evt); setSelectedDate(""); setModalOpen(true); }}
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      if (dragEventId) return;
+                      setSelectedEvent(evt); setSelectedDate(""); setModalOpen(true);
+                    }}
                   >
                     {evt.title}
                   </div>

@@ -1,0 +1,25 @@
+{
+  "name": "Plannerly",
+  "short_name": "Plannerly",
+  "description": "Painel web de agenda mensal inteligente",
+  "start_url": "/dashboard",
+  "display": "standalone",
+  "background_color": "#1e1e2e",
+  "theme_color": "#f0c040",
+  "orientation": "portrait-primary",
+  "icons": [
+    {
+      "src": "/icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "maskable any"
+    },
+    {
+      "src": "/favicon.ico",
+      "sizes": "48x48",
+      "type": "image/x-icon"
+    }
+  ],
+  "screenshots": [],
+  "categories": ["productivity", "utilities"]
+}
