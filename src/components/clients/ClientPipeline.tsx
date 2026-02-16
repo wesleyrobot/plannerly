@@ -7,6 +7,7 @@ import { Stage, Client, ClientInsert } from "@/types/database";
 import ClientCard from "./ClientCard";
 import ClientModal from "./ClientModal";
 import { Plus, Pencil, Trash2, Check, X, DollarSign, LayoutList, LayoutGrid } from "lucide-react";
+import { formatCurrency } from "@/utils/format";
 
 const DEFAULT_STAGES = [
   { name: "Contrato Assinado", color: "#6366f1", position: 0 },
@@ -21,10 +22,6 @@ const STAGE_COLORS = [
   "#6366f1", "#8b5cf6", "#ec4899", "#ef4444",
   "#f97316", "#eab308", "#22c55e", "#06b6d4", "#3b82f6", "#f0c040",
 ];
-
-function formatCurrency(value: number): string {
-  return new Intl.NumberFormat("pt-BR", { style: "currency", currency: "BRL" }).format(value);
-}
 
 export default function ClientPipeline() {
   const [stages, setStages] = useState<Stage[]>([]);

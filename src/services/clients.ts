@@ -1,4 +1,4 @@
-import { supabase } from "@/lib/supabase";
+import { createClient as getSupabase } from "@/lib/supabase";
 import type { Database } from "@/types/database";
 
 type Client = Database["public"]["Tables"]["clients"]["Row"];
@@ -6,7 +6,7 @@ type ClientInsert = Database["public"]["Tables"]["clients"]["Insert"];
 type ClientUpdate = Database["public"]["Tables"]["clients"]["Update"];
 
 export async function fetchClients(userId: string) {
-  const { data, error } = await supabase
+  const { data, error } = await getSupabase()
     .from("clients")
     .select("*")
     .eq("user_id", userId)
@@ -17,19 +17,19 @@ export async function fetchClients(userId: string) {
 }
 
 export async function fetchClientById(id: string) {
-  const { data, error } = await supabase.from("clients").select("*").eq("id", id).single();
+  const { data, error } = await getSupabase().from("clients").select("*").eq("id", id).single();
   if (error) throw error;
   return data as Client;
 }
 
 export async function createClient(client: ClientInsert) {
-  const { data, error } = await supabase.from("clients").insert(client).select().single();
+  const { data, error } = await getSupabase().from("clients").insert(client).select().single();
   if (error) throw error;
   return data as Client;
 }
 
 export async function updateClient(id: string, updates: ClientUpdate) {
-  const { data, error } = await supabase
+  const { data, error } = await getSupabase()
     .from("clients")
     .update({ ...updates, updated_at: new Date().toISOString() })
     .eq("id", id)
@@ -40,6 +40,6 @@ export async function updateClient(id: string, updates: ClientUpdate) {
 }
 
 export async function deleteClient(id: string) {
-  const { error } = await supabase.from("clients").delete().eq("id", id);
+  const { error } = await getSupabase().from("clients").delete().eq("id", id);
   if (error) throw error;
 }

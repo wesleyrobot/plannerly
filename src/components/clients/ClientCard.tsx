@@ -4,10 +4,7 @@ import { Client } from "@/types/database";
 import { GripVertical, Mail, Phone, User, DollarSign, ExternalLink } from "lucide-react";
 import { format, parseISO } from "date-fns";
 import Link from "next/link";
-
-function formatCurrency(value: number): string {
-  return new Intl.NumberFormat("pt-BR", { style: "currency", currency: "BRL" }).format(value);
-}
+import { formatCurrency } from "@/utils/format";
 
 interface ClientCardProps {
   client: Client;

@@ -6,6 +6,7 @@ import { useAuth } from "@/contexts/AuthContext";
 import { DollarSign, Users, TrendingUp, Award } from "lucide-react";
 import { format, parseISO, subMonths, startOfMonth, endOfMonth } from "date-fns";
 import { ptBR } from "date-fns/locale";
+import { formatCurrency } from "@/utils/format";
 
 interface ClientData {
   name: string;
@@ -18,10 +19,6 @@ interface MonthRevenue {
   month: string;
   label: string;
   value: number;
-}
-
-function formatCurrency(v: number) {
-  return new Intl.NumberFormat("pt-BR", { style: "currency", currency: "BRL" }).format(v);
 }
 
 export default function RelatorioPage() {

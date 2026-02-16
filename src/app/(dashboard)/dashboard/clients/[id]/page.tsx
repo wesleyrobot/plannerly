@@ -19,10 +19,7 @@ import {
 } from "lucide-react";
 import { format, parseISO } from "date-fns";
 import { ptBR } from "date-fns/locale";
-
-function formatCurrency(value: number) {
-  return new Intl.NumberFormat("pt-BR", { style: "currency", currency: "BRL" }).format(value);
-}
+import { formatCurrency } from "@/utils/format";
 
 export default function ClientDetailPage() {
   const { id } = useParams<{ id: string }>();

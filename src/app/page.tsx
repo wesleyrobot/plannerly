@@ -14,37 +14,43 @@ const features = [
     icon: Calendar,
     title: "Calendário Inteligente",
     description: "Visualize todos os seus eventos em um calendário mensal estilo chalkboard.",
-    color: "bg-[#f0c040]/10 text-[#f0c040]",
+    bg: "bg-[#f0c040]",
+    shadow: "shadow-[0_4px_20px_rgba(240,192,64,0.4)]",
   },
   {
     icon: CheckSquare,
     title: "Gestão de Tarefas",
     description: "Organize tarefas por prioridade, acompanhe o progresso e nunca perca um prazo.",
-    color: "bg-green-400/10 text-green-400",
+    bg: "bg-[#22c55e]",
+    shadow: "shadow-[0_4px_20px_rgba(34,197,94,0.4)]",
   },
   {
     icon: StickyNote,
     title: "Notas Rápidas",
     description: "Anote ideias e lembretes com notas estilizadas direto no painel.",
-    color: "bg-amber-400/10 text-amber-400",
+    bg: "bg-[#f97316]",
+    shadow: "shadow-[0_4px_20px_rgba(249,115,22,0.4)]",
   },
   {
     icon: Zap,
     title: "Tempo Real",
     description: "Todas as alterações são sincronizadas automaticamente em tempo real.",
-    color: "bg-purple-400/10 text-purple-400",
+    bg: "bg-[#8b5cf6]",
+    shadow: "shadow-[0_4px_20px_rgba(139,92,246,0.4)]",
   },
   {
     icon: Shield,
     title: "Seguro e Privado",
     description: "Seus dados são protegidos com autenticação segura e criptografia.",
-    color: "bg-red-400/10 text-red-400",
+    bg: "bg-[#ef4444]",
+    shadow: "shadow-[0_4px_20px_rgba(239,68,68,0.4)]",
   },
   {
     icon: Smartphone,
     title: "Responsivo",
     description: "Acesse sua agenda de qualquer dispositivo, em qualquer lugar.",
-    color: "bg-cyan-400/10 text-cyan-400",
+    bg: "bg-[#06b6d4]",
+    shadow: "shadow-[0_4px_20px_rgba(6,182,212,0.4)]",
   },
 ];
 
@@ -129,9 +135,9 @@ export default function Home() {
                 className="bg-[#2a2a3a] rounded-2xl p-8 border border-[#3a3a4a] hover:border-[#555] transition-all"
               >
                 <div
-                  className={`w-12 h-12 rounded-xl flex items-center justify-center ${feature.color} mb-5`}
+                  className={`w-14 h-14 rounded-2xl flex items-center justify-center ${feature.bg} ${feature.shadow} mb-5`}
                 >
-                  <feature.icon className="w-6 h-6" />
+                  <feature.icon className="w-7 h-7 text-white" strokeWidth={2.2} />
                 </div>
                 <h3 className="text-lg font-semibold text-[#e8e8e8] mb-2">{feature.title}</h3>
                 <p className="text-[#888]">{feature.description}</p>

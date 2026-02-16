@@ -5,16 +5,13 @@ import { Users, DollarSign, CalendarDays, AlertCircle } from "lucide-react";
 import { createClient } from "@/lib/supabase";
 import { useAuth } from "@/contexts/AuthContext";
 import { startOfWeek, endOfWeek, startOfDay, endOfDay } from "date-fns";
+import { formatCurrency } from "@/utils/format";
 
 interface Metrics {
   totalClients: number;
   totalRevenue: number;
   eventsThisWeek: number;
   overdueTasks: number;
-}
-
-function formatCurrency(value: number) {
-  return new Intl.NumberFormat("pt-BR", { style: "currency", currency: "BRL" }).format(value);
 }
 
 export default function MetricsBar() {
