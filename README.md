@@ -1,110 +1,83 @@
 # Plannerly
 
-**Painel web de agenda mensal inteligente, simples e elegante.**
+Painel web de agenda mensal inteligente, simples e elegante.
 
-> "Organize seu mês. Visualize sua rotina."
+## Stack
 
-## Tecnologias
+- **Next.js 15** (App Router)
+- **TypeScript**
+- **Tailwind CSS v4**
+- **Supabase** (Auth + PostgreSQL + Realtime)
 
-### Frontend
-- **Next.js** (React) - Framework moderno e rápido
-- **TypeScript** - Código seguro e escalável
-- **Tailwind CSS** - Estilo moderno e responsivo
-- **FullCalendar.js** - Calendário mensal/semanal interativo
-- **Lucide Icons** - Ícones clean e profissionais
-
-### Backend (100% Supabase)
-- **PostgreSQL** - Banco de dados
-- **Supabase Auth** - Login por email/senha e Google
-- **Supabase Realtime** - Atualização automática da agenda
-- **Row Level Security** - Segurança por usuário
-
-## Funcionalidades
-
-- Calendário mensal, semanal e em lista
-- Criação, edição e exclusão de eventos com cores
-- Gestão de tarefas com prioridades (alta, média, baixa)
-- Barra de progresso de tarefas
-- Notas rápidas coloridas
-- Dashboard com resumo geral
-- Autenticação com email/senha e Google
-- Atualização em tempo real
-- Interface responsiva
-
-## Como Iniciar
-
-### 1. Instalar dependências
+## Setup
 
 ```bash
+# 1. Instalar dependências
 npm install
-```
 
-### 2. Configurar Supabase
+# 2. Configurar variáveis de ambiente
+cp .env.example .env.local
+# Preencha NEXT_PUBLIC_SUPABASE_URL e NEXT_PUBLIC_SUPABASE_ANON_KEY
 
-1. Crie um projeto no [Supabase](https://supabase.com)
-2. Copie a **URL** e a **Anon Key** do projeto
-3. Edite o arquivo `.env.local`:
+# 3. Rodar migrations no Supabase (SQL Editor) — ver seção abaixo
 
-```env
-NEXT_PUBLIC_SUPABASE_URL=https://seu-projeto.supabase.co
-NEXT_PUBLIC_SUPABASE_ANON_KEY=sua-anon-key-aqui
-```
-
-### 3. Criar as tabelas no banco
-
-1. Acesse o **SQL Editor** no painel do Supabase
-2. Cole e execute o conteúdo do arquivo `supabase/schema.sql`
-
-### 4. Configurar autenticação Google (opcional)
-
-1. No Supabase, vá em **Authentication > Providers > Google**
-2. Configure com suas credenciais do Google Cloud Console
-3. Adicione `https://seu-dominio.com/auth/callback` como redirect URL
-
-### 5. Rodar o projeto
-
-```bash
+# 4. Iniciar dev
 npm run dev
 ```
 
-Acesse [http://localhost:3000](http://localhost:3000)
+## SQL Migrations
 
-## Estrutura do Projeto
+Execute no Supabase SQL Editor:
+
+```sql
+ALTER TABLE public.events
+ADD COLUMN IF NOT EXISTS recurrence TEXT DEFAULT NULL
+  CHECK (recurrence IN ('daily', 'weekly', 'monthly', NULL)),
+ADD COLUMN IF NOT EXISTS recurrence_end DATE DEFAULT NULL,
+ADD COLUMN IF NOT EXISTS event_type TEXT DEFAULT NULL
+  CHECK (event_type IN ('event', 'meeting', 'deadline', NULL)),
+ADD COLUMN IF NOT EXISTS client_id UUID REFERENCES public.clients(id) ON DELETE SET NULL;
+```
+
+## Estrutura
 
 ```
 src/
-├── app/
-│   ├── (auth)/          # Páginas de login e registro
-│   ├── (dashboard)/     # Dashboard, calendário, tarefas, notas
-│   ├── auth/callback/   # Callback OAuth
-│   ├── layout.tsx       # Layout raiz
-│   └── page.tsx         # Landing page
+├── app/(dashboard)/dashboard/
+│   ├── page.tsx          # Home com métricas
+│   ├── calendar/         # Calendário mensal
+│   ├── clients/[id]/     # Detalhe do cliente
+│   ├── tasks/            # Lista de tarefas
+│   ├── notes/            # Notas
+│   └── relatorio/        # Relatório financeiro
 ├── components/
-│   ├── auth/            # Componentes de autenticação
-│   ├── calendar/        # CalendarView, EventModal
-│   ├── layout/          # Sidebar, Header
-│   ├── notes/           # NoteGrid
-│   └── tasks/           # TaskList
-├── contexts/            # AuthContext
-├── lib/                 # Clientes Supabase
-└── types/               # Tipos TypeScript
+│   ├── calendar/         # Calendário + modais + export
+│   ├── clients/          # Pipeline + cards
+│   ├── dashboard/        # MetricsBar
+│   ├── layout/           # Sidebar, GlobalSearch, Shortcuts
+│   └── ui/               # ErrorBoundary, ConfirmDialog
+├── constants/
+│   ├── events.ts         # Labels de tipo/prioridade/recorrência
+│   └── theme.ts          # Paleta de cores
+├── services/             # Camada de acesso ao Supabase
+│   ├── clients.ts
+│   ├── events.ts
+│   ├── notes.ts
+│   └── tasks.ts
+└── utils/
+    ├── date.ts           # expandRecurringEvents, getRealEventId
+    └── format.ts         # formatCurrency, formatDate, formatTime
 ```
 
-## Deploy
+## Features
 
-### Frontend - Vercel
-1. Conecte o repositório na [Vercel](https://vercel.com)
-2. Configure as variáveis de ambiente
-3. Deploy automático
-
-### Backend - Supabase Cloud
-O backend já está hospedado no Supabase Cloud.
-
-## Roadmap (Fase 2)
-
-- [ ] PWA (funciona offline)
-- [ ] Tema claro / escuro
-- [ ] Notificações
-- [ ] Exportar PDF
-- [ ] Integração com Google Calendar
-- [ ] Versão mobile-first
+- Calendário mensal com drag & drop
+- Eventos recorrentes (diário / semanal / mensal)
+- Pipeline de clientes (Kanban com drag & drop)
+- Busca global (`Ctrl+K`)
+- Atalhos de teclado (`N` `T` `C` `?`)
+- Exportar agenda em PDF ou CSV
+- Relatório financeiro mensal
+- Notificações do navegador
+- PWA (instalável no celular)
+- Responsivo com bottom nav em mobile
